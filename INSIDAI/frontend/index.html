@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<title data-i18n="title">InsidAI — Sovereign AI Workbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=55500550">
+<link rel="stylesheet" href="voice-assistant.css?v=555550">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body>
+
+<div id="authScreen" class="auth-screen">
+  <!-- Subtle background texture -->
+  <div class="noise-overlay"></div>
+
+  <div class="auth-layout">
+    <!-- LEFT: User's SVG Logo -->
+    <div class="auth-logo-section">
+      <div class="logo-container">
+        <div class="svg-container">
+          <img src="logo_blue.png" alt="Urja Kavach Logo" style="width: 100%; height: 100%; object-fit: contain;" />
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- RIGHT: Form Panel -->
+    <div class="auth-form-wrapper">
+      <div class="auth-form-card">
+        
+        <!-- Language selector top-right -->
+        <div class="auth-lang-row">
+          <select id="authLangSelect" onchange="window.changeLanguage && changeLanguage(this.value)" style="background:transparent; color:var(--text-dim); border:1px solid rgba(255,255,255,0.1); padding:6px 10px; border-radius:6px; font-size:13px; cursor:pointer; outline:none;">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="kn">ಕನ್ನಡ</option>
+          </select>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div id="loginForm" class="uk-form">
+          <h2 class="uk-form-title" data-i18n="auth.welcome">Welcome back</h2>
+          <p class="uk-form-sub" data-i18n="auth.sign_in_sub">Sign in to your Urja Kavach account</p>
+
+          <!-- Role tabs -->
+          <div class="uk-role-tabs" id="loginRoleTabs">
+            <button class="uk-role-tab active" onclick="setLoginRole(this, 'employee')" data-i18n="auth.employee">Employee</button>
+            <button class="uk-role-tab" onclick="setLoginRole(this, 'supervisor')" data-i18n="auth.supervisor">Supervisor</button>
+            <button class="uk-role-tab" onclick="setLoginRole(this, 'admin')" data-i18n="auth.admin">Admin</button>
+          </div>
+
+          <div class="uk-field-group">
+            <label class="uk-label" data-i18n="auth.username_email">Username or Email</label>
+            <input type="text" id="loginId" class="uk-input" placeholder="Enter your ID or email" autocomplete="username" />
+          </div>
+          <div class="uk-field-group">
+            <label class="uk-label" data-i18n="auth.password">Password</label>
+            <input type="password" id="loginPassword" class="uk-input" placeholder="Enter your password" autocomplete="current-password" />
+          </div>
+          
+          <button class="uk-btn-primary" onclick="handleLogin()" data-i18n="auth.sign_in">Sign In</button>
+          <p class="uk-switch-link" data-i18n="auth.new_account" data-i18n-html="true">New to Urja Kavach? <span onclick="toggleAuthMode()">Create an account</span></p>
+        </div>
+
+        <!-- REGISTER FORM -->
+        <div id="registerForm" class="uk-form panel-hidden">
+          <h2 class="uk-form-title" data-i18n="auth.create_account">Create Account</h2>
+          <p class="uk-form-sub" data-i18n="auth.join_workspace">Join the enterprise AI workspace</p>
+
+          <div class="uk-field-row">
+            <div class="uk-field-group">
+              <label class="uk-label" data-i18n="auth.full_name">Full Name *</label>
+              <input type="text" id="regName" class="uk-input" placeholder="Your full name" />
+            </div>
+            <div class="uk-field-group">
+              <label class="uk-label" data-i18n="auth.profession">Profession</label>
+              <input type="text" id="regProfession" class="uk-input" placeholder="e.g. Engineer" />
+            </div>
+          </div>
+
+          <!-- MRPL Toggle -->
+          <div class="uk-org-toggle">
+            <label class="uk-toggle-label">
+              <input type="checkbox" id="regIsMrpl" checked onchange="toggleMrplInput()" />
+              <span class="uk-toggle-text" data-i18n="auth.iam_mrpl">I am an MRPL employee</span>
+            </label>
+          </div>
+
+          <div class="uk-field-group">
+            <label class="uk-label" id="regIdLabel" data-i18n="auth.emp_username">Employee Username *</label>
+            <div class="uk-email-row" id="emailGroup">
+              <input type="text" id="regId" class="uk-input uk-input-flex" placeholder="username" />
+              <span class="uk-email-suffix" id="mrplSuffix">@mrpl.in</span>
+            </div>
+          </div>
+
+          <div class="uk-field-row">
+            <div class="uk-field-group">
+              <label class="uk-label" data-i18n="auth.role">Role *</label>
+              <select id="regRole" class="uk-input">
+                <option value="employee" data-i18n="auth.employee">Employee</option>
+                <option value="supervisor" data-i18n="auth.supervisor">Supervisor</option>
+                <option value="admin" data-i18n="auth.admin">Administrator</option>
+              </select>
+            </div>
+            <div class="uk-field-group">
+              <label class="uk-label" data-i18n="auth.emp_code">Employee Code *</label>
+              <input type="text" id="regEmpCode" class="uk-input" placeholder="e.g. 123456" />
+            </div>
+          </div>
+
+          <div class="uk-field-row">
+            <div class="uk-field-group">
+              <label class="uk-label" data-i18n="auth.country">Country</label>
+              <input type="text" id="regCountry" class="uk-input" placeholder="India" />
+            </div>
+            <div class="uk-field-group">
+              <label class="uk-label" data-i18n="auth.github_id">GitHub ID</label>
+              <input type="text" id="regGithub" class="uk-input" placeholder="github_username" />
+            </div>
+          </div>
+
+          <div class="uk-field-group">
+            <label class="uk-label" data-i18n="auth.password_req">Password *</label>
+            <input type="password" id="regPassword" class="uk-input" placeholder="At least 6 characters" autocomplete="new-password" />
+          </div>
+
+          <button class="uk-btn-primary" onclick="handleRegister()" data-i18n="auth.create_btn">Create Account</button>
+          <p class="uk-switch-link" data-i18n="auth.already_have" data-i18n-html="true">Already have an account? <span onclick="toggleAuthMode()">Sign in</span></p>
+        </div>
+
+        <div id="authError" class="uk-auth-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app panel-hidden" id="mainApp">
+
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">Urja Kavach <span style="font-size: 11px; color: var(--text-dim); font-weight: normal;">v1.0</span></div>
+      <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Collapse Sidebar">&#9776;</button>
+      <button class="new-chat-btn" onclick="startNewChat()" data-i18n="sidebar.new_chat">+ New chat</button>
+    </div>
+
+    <div class="quick-actions">
+      <button class="quick-btn agent-hub-btn" onclick="openModal('agentHubModal')" id="btnAgentHub">
+        <span class="qb-dot" style="background:#4ec9b0;"></span> <span data-i18n="sidebar.agents_hub"> Agents Hub</span>
+      </button>
+      <button class="quick-btn" onclick="openModal('docModal')" id="btnDocFlow">
+        <span class="qb-dot" style="background:#569cd6;"></span> <span data-i18n="sidebar.doc_flow">Document Flow</span>
+      </button>
+      <button class="quick-btn" onclick="openModal('codeModal')" id="btnCodeFlow">
+        <span class="qb-dot" style="background:#dcdcaa;"></span> <span data-i18n="sidebar.code_flow">Code Flow</span>
+      </button>
+    </div>
+
+    <div class="history-header" data-i18n="sidebar.chats">Chats</div>
+    <div class="history-list" id="historyList"></div>
+
+    <div class="sidebar-bottom">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <select id="sidebarLangSelect" class="lang-select" onchange="window.changeLanguage && changeLanguage(this.value)" style="background:var(--bg-input); color:var(--text); border:1px solid var(--border); padding:5px; border-radius:4px; font-size: 12px; cursor:pointer; outline:none;"><option value="en">English</option><option value="hi">हिन्दी</option><option value="kn">ಕನ್ನಡ</option></select>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" style="background: none; border: none; color: var(--text); cursor: pointer;">
+          <span id="themeIcon">&#9789;</span>
+        </button>
+      </div>
+      <div class="user-profile" onclick="toggleProfileMenu(event)" style="cursor: pointer; position: relative;">
+        <div class="avatar" id="userAvatar">U</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">User</div>
+          <div class="user-sub" style="color: var(--accent); font-weight: 500;" id="userRole">Employee</div>
+        </div>
+        <div style="margin-left: auto; color: var(--text-dim);">&#8942;</div>
+        
+        <!-- Popup Menu -->
+        <div id="profileMenu" class="profile-menu panel-hidden">
+          <div class="profile-menu-header">
+            <div class="pm-name" id="pmName">User</div>
+            <div class="pm-email" id="pmEmail">user@example.com</div>
+            <div class="pm-role" id="pmRole">Employee</div>
+          </div>
+          <div class="profile-menu-items">
+            <div class="pm-item" onclick="openProfileModal()">Edit Profile</div>
+            <div class="pm-separator"></div>
+            <div class="pm-item pm-logout" onclick="handleLogout()">Sign out</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="chat-main">
+    <div class="chat-header">
+      <button class="sidebar-open-btn panel-hidden" onclick="toggleSidebar()" title="Open Sidebar" id="openSidebarBtn">&#9776;</button>
+      <div class="chat-header-left">
+        <div class="chat-title" id="chatTitle" data-i18n="main.new_chat_title">New chat</div>
+        <div class="active-agent-pill" id="activeAgentPill" onclick="openModal('agentHubModal')" title="Click to switch or onboard domain agents" data-i18n-title="main.active_agent_tooltip">
+          <span class="agent-icon"></span>
+          <span id="activeAgentName" data-i18n="main.default_agent">General Engineering Agent</span>
+          <span class="agent-change-badge" data-i18n="main.change">Change </span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button class="panel-toggle" onclick="changeZoom(-0.1)" title="Decrease font size">-</button>
+        <button class="panel-toggle" onclick="changeZoom(0.1)" title="Increase font size">+</button>
+        <button class="panel-toggle" id="panelToggleBtn" onclick="toggleActivityPanel()">
+        <span data-i18n="main.activity_btn">Activity ▹</span>
+      </button>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="empty-state" id="emptyState" style="text-align: center; max-width: 700px; margin: 40px auto; padding: 20px;">
+        <img src="logo_blue.png" alt="Urja Kavach Logo" style="width: 48px; height: auto; margin-bottom: 15px; display: inline-block;" />
+        <h2 data-i18n="main.welcome_title" style="font-size: 28px; font-weight: 600; color: var(--text); margin-bottom: 10px;">Welcome to Urja Kavach</h2>
+        <p data-i18n="main.welcome_desc" style="color: var(--text-dim); font-size: 16px; margin-bottom: 30px; line-height: 1.5;">Your enterprise AI assistant for intelligent work, information and productivity.</p>
+        
+        <h3 style="font-size: 16px; color: var(--text); margin-bottom: 15px; font-weight: 500;">How can I help you?</h3>
+        
+        <div class="suggestion-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; text-align: left;">
+          
+          <div class="suggestion-card" onclick="quickPrompt('Create a presentation from this information.')" style="background: var(--bg-input); border: 1px solid var(--border); padding: 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px; color: var(--accent);">Create</div>
+            <div style="font-size: 13px; color: var(--text-dim);">Create a presentation from this information</div>
+          </div>
+
+          <div class="suggestion-card" onclick="quickPrompt('Analyze this report and highlight the important points.')" style="background: var(--bg-input); border: 1px solid var(--border); padding: 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px; color: var(--accent);" data-i18n="suggestions.analyze">Analyze</div>
+            <div style="font-size: 13px; color: var(--text-dim);" data-i18n="suggestions.analyze_desc">Analyze this report and highlight the important points</div>
+          </div>
+
+          <div class="suggestion-card" onclick="quickPrompt('Summarize this document.')" style="background: var(--bg-input); border: 1px solid var(--border); padding: 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px; color: var(--accent);" data-i18n="suggestions.summarize">Summarize</div>
+            <div style="font-size: 13px; color: var(--text-dim);" data-i18n="suggestions.summarize_desc">Summarize this document</div>
+          </div>
+
+          <div class="suggestion-card" onclick="quickPrompt('Draft a professional email.')" style="background: var(--bg-input); border: 1px solid var(--border); padding: 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px; color: var(--accent);" data-i18n="suggestions.write">Write</div>
+            <div style="font-size: 13px; color: var(--text-dim);" data-i18n="suggestions.write_desc">Draft a professional email</div>
+          </div>
+
+          <div class="suggestion-card" onclick="quickPrompt('Explain this technical concept simply.')" style="background: var(--bg-input); border: 1px solid var(--border); padding: 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px; color: var(--accent);" data-i18n="suggestions.explain">Explain</div>
+            <div style="font-size: 13px; color: var(--text-dim);" data-i18n="suggestions.explain_desc">Explain this technical concept simply</div>
+          </div>
+
+          <div class="suggestion-card" onclick="quickPrompt('Ask a question about available enterprise information.')" style="background: var(--bg-input); border: 1px solid var(--border); padding: 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px; color: var(--accent);" data-i18n="suggestions.ask">Ask Urja Kavach</div>
+            <div style="font-size: 13px; color: var(--text-dim);" data-i18n="suggestions.ask_desc">Ask a question about available enterprise info</div>
+          </div>
+          
+        </div>
+        
+        
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <div class="attach-preview panel-hidden" id="attachPreview"></div>
+      <div class="input-row">
+        <button class="attach-btn" title="Attach file(s)"
+                onclick="document.getElementById('chatFileInput').click()"><i class="bi bi-paperclip"></i></button>
+        <input type="file" id="chatFileInput" multiple accept="*/*" onchange="onChatFileChosen(event)">
+        <button class="attach-btn" id="vaMicBtn" title="Voice input (English/Hindi)" onclick="window.mrplVoiceAssistant && window.mrplVoiceAssistant.toggle()"><i class="bi bi-mic"></i></button>
+        <textarea id="chatInput" rows="1"
+                  data-i18n-placeholder="main.chat_placeholder" placeholder="Ask anything, or describe a coding/document task..."
+                  onkeydown="onChatInputKeydown(event)"
+                  oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendChatMessage()" data-i18n="main.send">Send</button>
+      </div>
+    </div>
+  </main>
+
+  <aside class="activity-panel" id="activityPanel">
+    <div class="activity-header">
+      <span data-i18n="activity.title">Activity — audit log</span>
+      <button class="panel-close" onclick="toggleActivityPanel()">&times;</button>
+    </div>
+    <div class="activity-body" id="logPanel">
+      <div class="term-line term-empty" data-i18n="activity.waiting">$ waiting for a flow to run…</div>
+    </div>
+    <div class="activity-footer">
+      <div id="modelLine"></div>
+      <div id="kbLine"></div>
+    </div>
+  </aside>
+
+</div>
+
+<div class="modal-overlay panel-hidden" id="docModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span data-i18n="modals.doc_flow_title">Document Flow — Scanned Report to Approval Note</span>
+      <button onclick="closeModal('docModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc" data-i18n="modals.doc_flow_desc">
+        OCR (Tesseract) &rarr; plant knowledge-base grounding &rarr; reasoning model
+        &rarr; real .docx approval note.
+      </p>
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <span data-i18n="modals.upload_hint">Click to upload document / image</span><br><span data-i18n="modals.upload_hint2">(.png, .jpg, .jpeg)</span>
+      </div>
+      <input type="file" id="fileInput" accept="image/png,image/jpeg" onchange="onFileChosen(event)">
+      <img id="filePreview" class="file-preview panel-hidden" alt="uploaded preview">
+      <label class="sample-toggle">
+        <input type="checkbox" id="useSampleToggle" checked onchange="toggleSample()">
+        <span data-i18n="modals.use_sample">Use bundled sample instead</span>
+      </label>
+      <button class="run-btn" id="runDoc" onclick="runDocFlow()" data-i18n="modals.run_doc_flow">Run Document Flow</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay panel-hidden" id="codeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span data-i18n="modals.code_flow_title">Code Flow — Coding Task in Sandbox</span>
+      <button onclick="closeModal('codeModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc" data-i18n="modals.code_flow_desc">
+        Routed to the code model, then executed in an isolated sandbox to verify
+        it actually runs.
+      </p>
+      <textarea class="prompt" id="codePrompt" rows="4" data-i18n="modals.code_prompt">Write code to compute the average of a list of numbers</textarea>
+      <button class="run-btn" id="runCode" onclick="runCodeFlow()" data-i18n="modals.run_code_flow">Run Code Flow</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay panel-hidden" id="profileModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span data-i18n="modals.profile_title">Edit Profile</span>
+      <button onclick="closeModal('profileModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="auth-form" style="margin-top: 10px;">
+        <input type="text" id="editName" data-i18n-placeholder="auth.reg_name" placeholder="Full Name" />
+        <input type="text" id="editProfession" data-i18n-placeholder="auth.reg_prof" placeholder="Profession" />
+        <input type="text" id="editCountry" data-i18n-placeholder="auth.reg_country" placeholder="Country" />
+        <button class="btn-primary" onclick="handleUpdateProfile()" data-i18n="modals.save_changes">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay panel-hidden" id="agentHubModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span data-i18n="modals.agent_hub_title"> Agent Hub & Onboarder — Industrial Domain Specialists</span>
+      <button onclick="closeModal('agentHubModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="agent-tabs">
+        <button class="agent-tab active" id="tabDiscoverBtn" onclick="switchAgentTab('discover')" data-i18n="modals.tab_discover"> Use Cases & Discovery</button>
+        <button class="agent-tab" id="tabOnboardBtn" onclick="switchAgentTab('onboard')" data-i18n="modals.tab_onboard"> Onboard New Agent</button>
+      </div>
+
+      <!-- Tab 1: Discover & Semantic Search -->
+      <div id="tabDiscover" class="agent-tab-content">
+        <div class="agent-search-bar">
+          <input type="text" id="agentSearchInput" data-i18n-placeholder="modals.search_placeholder" placeholder="Search by intent or use case (e.g. 'heat exchanger fouling', 'piping wall thickness', 'shift handover')..." oninput="debounceAgentSearch()" />
+          <button class="btn-primary" onclick="searchAgentsAction()" data-i18n="modals.search_btn">Search</button>
+        </div>
+        <div class="use-cases-chips-row" id="useCaseChipsRow">
+          <!-- Dynamically filled with use case badges -->
+        </div>
+        <div class="agents-grid" id="agentsGrid">
+          <!-- Dynamically filled with agent cards -->
+        </div>
+      </div>
+
+      <!-- Tab 2: Onboard New Agent -->
+      <div id="tabOnboard" class="agent-tab-content panel-hidden">
+        <form id="onboardAgentForm" onsubmit="handleOnboardSubmit(event)">
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label data-i18n="modals.role_name">Agent Role Name *</label>
+              <input type="text" id="newAgentName" data-i18n-placeholder="modals.role_placeholder" placeholder="e.g. Crude Desalter Emulsion Specialist" required oninput="onNewAgentInfoChange()" />
+            </div>
+            <div class="form-group flex-1">
+              <label data-i18n="modals.dept">Department / Plant Unit</label>
+              <input type="text" id="newAgentDept" data-i18n-placeholder="modals.dept_placeholder" placeholder="e.g. CDU-1 / Technical Services" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label data-i18n="modals.desc">Description &amp; Operational Scope *</label>
+            <input type="text" id="newAgentDesc" data-i18n-placeholder="modals.desc_placeholder" placeholder="e.g. Monitors desalter water carryover, grid voltage, and rag layer thickness" required oninput="onNewAgentInfoChange()" />
+          </div>
+
+          <div class="form-group">
+            <label data-i18n="modals.use_cases">Use Case IDs / Tags (comma-separated) *</label>
+            <input type="text" id="newAgentUseCases" data-i18n-placeholder="modals.use_cases_placeholder" placeholder="e.g. desalter_emulsion, crude_processing, salt_in_crude" required />
+            <small class="field-hint" data-i18n="modals.use_cases_hint">M:N mapping &mdash; this agent will be semantically indexed under these use case IDs.</small>
+          </div>
+
+          <div class="form-group">
+            <label data-i18n="modals.prompt_def">System Role &amp; Prompt Definition *</label>
+            <textarea id="newAgentPrompt" rows="3" data-i18n-placeholder="modals.prompt_placeholder" placeholder="You are an autonomous desalter specialist. Calculate water drop rate and warn on electrical grid trips." required></textarea>
+          </div>
+
+          <!-- Skill File Upload or Meta-Agent AI Draft -->
+          <div class="form-group">
+            <div class="skill-header-row">
+              <label data-i18n="modals.skill_spec">Domain Skill Specification (SKILL.md) *</label>
+              <button type="button" class="btn-ai-draft" id="btnAiDraftSkill" onclick="draftSkillWithAi()" data-i18n="modals.ai_draft">
+                 AI Draft Skill (Meta-Agent)
+              </button>
+            </div>
+            <div class="skill-upload-row">
+              <input type="file" id="skillFileInput" accept=".md,.txt" onchange="onSkillFileChosen(event)" style="display:none" />
+              <button type="button" class="btn-secondary" onclick="document.getElementById('skillFileInput').click()" data-i18n="modals.upload_skill"> Upload SKILL.md / SOP File</button>
+              <span id="skillFileNameHint" class="file-hint-text" data-i18n="modals.no_file">No file chosen (or write markdown below)</span>
+            </div>
+            <textarea id="newAgentSkill" rows="6" data-i18n-placeholder="modals.skill_placeholder" placeholder="# Domain Skill Specification
+Enter standard operating procedures, equations, or click 'AI Draft Skill' above..." required></textarea>
+          </div>
+
+          <!-- Suggested & Allowed Tools -->
+          <div class="form-group">
+            <label data-i18n="modals.tools">Permitted Tools (Select which tools this agent can execute):</label>
+            <div class="tools-checklist" id="toolsChecklist">
+              <!-- Dynamically populated from /api/tools with suggestions highlighted -->
+            </div>
+          </div>
+
+          <!-- Model Routing -->
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label data-i18n="modals.model_arch">Primary Model Architecture</label>
+              <select id="newAgentModel">
+                <option value="reasoning" selected data-i18n="modals.reasoning_model">Reasoning Model (Llama-3.2-3B / DeepSeek)</option>
+                <option value="coding" data-i18n="modals.coding_model">Coding Model (Qwen2.5-Coder-1.5B)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary btn-lg" id="btnSubmitOnboard" data-i18n="modals.onboard_btn"> Onboard & Launch Agent</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- MRPL Voice Assistant — self-contained widget (own CSS/JS below). -->
+<!-- Not touched by / does not touch the rest of the app's layout.    -->
+<!-- ================================================================ -->
+<div id="mrplVaOverlay" class="mrpl-va-overlay panel-hidden" aria-hidden="true">
+  <div class="mrpl-va-backdrop" onclick="window.mrplVoiceAssistant && window.mrplVoiceAssistant.cancel()"></div>
+  <div class="mrpl-va-panel">
+    <div class="mrpl-va-orb-wrap" onclick="window.mrplVoiceAssistant && window.mrplVoiceAssistant.stop()">
+      <div class="mrpl-va-orb-glow" id="mrplVaGlow"></div>
+      <div class="mrpl-va-orb-ring"></div>
+      <div class="mrpl-va-spinner" id="mrplVaSpinner"></div>
+      <div class="mrpl-va-logo">
+          <img src="logo_blue.png" alt="Urja Kavach Logo" style="width: 100%; height: 100%; object-fit: contain;" />
+      </div>
+    </div>
+    <div class="mrpl-va-status" id="mrplVaStatus">Listening&hellip;</div>
+    <div class="mrpl-va-hint">Tap the orb or press Esc to stop</div>
+  </div>
+</div>
+
+<script src="locales.js?v=5555501"></script>
+<script src="i18n.js?v=555550"></script>
+<script src="app.js?v=5555501"></script>
+<script src="voice-assistant.js?v=555550"></script>
+</body>
+</html>

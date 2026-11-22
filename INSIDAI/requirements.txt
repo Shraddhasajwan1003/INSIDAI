@@ -1,0 +1,58 @@
+# Core backend
+fastapi
+uvicorn
+python-multipart
+python-dotenv
+
+# Tools
+pytesseract          # needs the Tesseract OS binary too - see docs/SETUP.md
+Pillow
+python-docx
+python-pptx
+pypdf                 # PDF text extraction
+pdf2image
+
+# Model layer
+requests
+
+# Knowledge base / RAG (organisation-specific grounding)
+chromadb
+sentence-transformers
+
+# Voice assistant: local STT (faster-whisper) + local TTS (MMS-TTS via transformers)
+# English + Hindi only. Model weights download once on first use, then fully offline.
+faster-whisper
+soundfile
+transformers
+torch
+scipy
+
+# Computer Vision / Engineering Drawing Pipeline
+
+numpy
+
+pandas
+
+opencv-contrib-python
+
+torchvision
+
+ultralytics
+
+scikit-learn
+
+networkx
+
+shapely
+
+matplotlib
+
+paddleocr
+
+paddlepaddle
+
+paddlex[ocr]          # [ocr] extra required for PaddleOCR-VL - plain `paddlex` fails at runtime without it
+
+# Tests
+pytest
+httpx
